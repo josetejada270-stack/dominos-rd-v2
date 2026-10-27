@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel Admin - Dominó RD</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0f1626 0%, #1a2338 100%); color: #fff; padding: 20px; min-height: 100vh; }
+h1 { color: #FFD700; margin-bottom: 30px; font-size: 32px; font-weight: 700; text-align: center; text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3); }
+.tabs { display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
+.tab { background: linear-gradient(135deg, #1a2238 0%, #2a3454 100%); border: 2px solid #3a4a7a; color: #aaa; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; }
+.tab:hover { transform: translateY(-2px); border-color: #FFD700; color: #FFD700; }
+.tab.active { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #0f1626; border-color: #FFD700; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: linear-gradient(135deg, #1a2238 0%, #2a3454 100%); border: 2px solid #3a4a7a; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.card h2 { color: #FFD700; font-size: 20px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #3a4a7a; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat { background: linear-gradient(135deg, #1a2238 0%, #2a3454 100%); border: 2px solid #3a4a7a; border-radius: 16px; padding: 24px; text-align: center; transition: transform 0.3s ease; }
+.stat:hover { transform: translateY(-5px); }
+.stat-num { color: #FFD700; font-size: 36px; font-weight: 800; text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3); }
+.stat-label { color: #aaa; font-size: 13px; margin-top: 8px; font-weight: 500; }
+.user-card { background: linear-gradient(135deg, #1a2238 0%, #253045 100%); border: 2px solid #3a4a7a; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); transition: all 0.3s ease; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.user-card:hover { transform: translateX(8px); border-color: #FFD700; box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2); }
+.user-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #0f1626; flex-shrink: 0; }
+.user-info { flex: 1; min-width: 200px; }
+.user-name { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.user-email { font-size: 13px; color: #aaa; margin-bottom: 8px; }
+.user-details { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.user-detail { background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 8px; font-size: 13px; color: #ccc; }
+.user-detail strong { color: #FFD700; }
+.user-balance { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: #fff; padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3); }
+.user-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+button { border: 0; border-radius: 10px; padding: 10px 18px; cursor: pointer; font-weight: 700; font-size: 13px; transition: all 0.3s ease; font-family: 'Poppins', sans-serif; }
+button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
+.ok { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: #fff; }
+.no { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; }
+.edit { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: #fff; }
+.warn { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: #fff; }
+.login { max-width: 450px; margin: 100px auto; text-align: center; background: linear-gradient(135deg, #1a2238 0%, #2a3454 100%); border: 3px solid #FFD700; box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2); }
+.login h1 { margin-bottom: 24px; font-size: 28px; }
+.login input { padding: 14px 20px; border-radius: 12px; border: 2px solid #3a4a7a; background: #0f1626; color: #fff; font-size: 15px; width: 100%; max-width: 300px; margin-bottom: 16px; font-family: 'Poppins', sans-serif; }
+.login input:focus { outline: none; border-color: #FFD700; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; margin-top: 16px; }
+th, td { padding: 14px; border-bottom: 1px solid #2a3454; text-align: left; }
+th { color: #FFD700; font-size: 12px; text-transform: uppercase; font-weight: 700; background: rgba(255, 215, 0, 0.1); }
+tr:hover td { background: rgba(255, 215, 0, 0.05); }
+.tag { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; }
+.DEPOSITO { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: #fff; }
+.RETIRO { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; }
+.APROBADO { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: #fff; }
+.RECHAZADO { background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: #fff; }
+.PENDIENTE { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: #fff; }
+.ACTIVO { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: #fff; }
+.BLOQUEADO { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; }
+input[type=text], input[type=number], input[type=password], input[type=date], select { background: #0f1626; color: #fff; border: 2px solid #3a4a7a; border-radius: 10px; padding: 12px 16px; width: 100%; max-width: 400px; font-family: 'Poppins', sans-serif; font-size: 14px; transition: border-color 0.3s ease; }
+input:focus, select:focus { outline: none; border-color: #FFD700; }
+.form-row { margin-bottom: 20px; }
+.form-row label { display: block; margin-bottom: 8px; color: #FFD700; font-size: 14px; font-weight: 600; }
+.form-row small { color: #888; font-size: 12px; display: block; margin-top: 6px; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+.modal.active { display: flex; animation: fadeIn 0.3s ease; }
+.modal-content { background: linear-gradient(135deg, #1a2238 0%, #2a3454 100%); padding: 30px; border-radius: 20px; max-width: 90%; max-height: 90%; border: 3px solid #FFD700; box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3); }
+.modal-content-wide { max-width: 900px; width: 95%; max-height: 90vh; overflow-y: auto; }
+.modal-content img { max-width: 100%; max-height: 70vh; border-radius: 12px; }
+.close-modal { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; border: 0; padding: 12px 24px; border-radius: 10px; cursor: pointer; margin-top: 20px; width: 100%; font-size: 15px; }
+.filter-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+.filter-bar select, .filter-bar input { background: #0f1626; color: #fff; border: 2px solid #3a4a7a; padding: 10px 16px; border-radius: 10px; font-family: 'Poppins', sans-serif; }
+.toggle { position: relative; display: inline-block; width: 60px; height: 32px; vertical-align: middle; margin-right: 12px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a3454; border-radius: 32px; transition: .3s; border: 2px solid #3a4a7a; }
+.slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 4px; bottom: 4px; background-color: #fff; border-radius: 50%; transition: .3s; }
+input:checked + .slider { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); border-color: #2ecc71; }
+input:checked + .slider:before { transform: translateX(26px); }
+#detalle-partidas td, #detalle-trans td { padding: 10px; font-size: 13px; }
+#detalle-partidas tr:hover td, #detalle-trans tr:hover td { background: rgba(255, 215, 0, 0.1); }
+.exit-btn { margin-top: 30px; text-align: center; }
+.exit-btn button { padding: 14px 40px; font-size: 16px; }
+@media (max-width: 768px) { .user-card { flex-direction: column; align-items: stretch; } .user-actions { justify-content: center; } .tabs { justify-content: flex-start; } }
+</style>
+</head>
+<body>
+
+<div id="login" class="card login">
+  <h1>🔐 Acceso Administrativo</h1>
+  <input id="pw" type="password" placeholder="Ingresa tu contraseña">
+  <br>
+  <button class="ok" onclick="entrar()" style="padding: 14px 40px; font-size: 16px;">Ingresar al Sistema</button>
+</div>
+
+<div id="app" style="display:none">
+  <h1>🎲 Panel de Administración - Dominó RD</h1>
+  
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+    <button class="tab" onclick="showTab('trans')">💳 Pendientes</button>
+    <button class="tab" onclick="showTab('hist-trans')">📜 Historial Trans.</button>
+    <button class="tab" onclick="showTab('users')">👥 Usuarios</button>
+    <button class="tab" onclick="showTab('bank')">🏦 Cuenta Bancaria</button>
+    <button class="tab" onclick="showTab('game')">🎮 Configuración</button>
+    <button class="tab" onclick="showTab('manual')">⚙️ Controles</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="tab-content active">
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="stat-usuarios">0</div><div class="stat-label">Usuarios Registrados</div></div>
+      <div class="stat"><div class="stat-num" id="stat-pendientes">0</div><div class="stat-label">Transacciones Pendientes</div></div>
+      <div class="stat"><div class="stat-num" id="stat-saldo-total">RD$ 0</div><div class="stat-label">Saldo Total en Plataforma</div></div>
+      <div class="stat"><div class="stat-num" id="stat-depositos">RD$ 0</div><div class="stat-label">Depósitos Pendientes</div></div>
+      <div class="stat"><div class="stat-num" id="stat-retiros">RD$ 0</div><div class="stat-label">Retiros Pendientes</div></div>
+    </div>
+    <div class="card">
+      <h2>⚡ Acciones Rápidas</h2>
+      <button class="edit" onclick="showTab('trans')">💳 Ver Pendientes</button>
+      <button class="edit" onclick="showTab('users')">👥 Gestionar Usuarios</button>
+      <button class="edit" onclick="showTab('game')">🎮 Configurar Juego</button>
+    </div>
+  </div>
+
+  <!-- TRANSACCIONES PENDIENTES -->
+  <div id="trans" class="tab-content">
+    <div class="card">
+      <h2>💳 Transacciones Pendientes</h2>
+      <div class="filter-bar">
+        <select id="filtro-tipo" onchange="filtrarTrans()">
+          <option value="">Todos los tipos</option>
+          <option value="DEPOSITO">💵 Depósitos</option>
+          <option value="RETIRO">📤 Retiros</option>
+        </select>
+        <button class="edit" onclick="cargar()">🔄 Actualizar</button>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>Ref/Datos</th><th>Comprobante</th><th>Acción</th></tr></thead>
+        <tbody id="pend"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- HISTORIAL DE TRANSACCIONES (NUEVO) -->
+  <div id="hist-trans" class="tab-content">
+    <div class="card">
+      <h2>📜 Historial Completo de Transacciones</h2>
+      <div class="filter-bar">
+        <input type="date" id="fecha-inicio" title="Fecha Inicio">
+        <input type="date" id="fecha-fin" title="Fecha Fin">
+        <button class="edit" onclick="cargarHistorialTrans()">🔍 Buscar por Fecha</button>
+        <button class="warn" onclick="limpiarFechas()">🔄 Ver Todas</button>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Fecha</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>Estado</th></tr></thead>
+        <tbody id="hist-trans-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- USUARIOS -->
+  <div id="users" class="tab-content">
+    <div class="card">
+      <h2>👥 Usuarios Registrados</h2>
+      <div class="filter-bar">
+        <input type="text" id="buscar-user" placeholder="🔍 Buscar por nombre o email..." oninput="filtrarUsers()">
+        <button class="edit" onclick="cargar()">🔄 Actualizar</button>
+      </div>
+      <div id="users-list"></div>
+    </div>
+  </div>
+
+  <!-- CUENTA BANCARIA -->
+  <div id="bank" class="tab-content">
+    <div class="card">
+      <h2>🏦 Tu Cuenta Bancaria</h2>
+      <div class="form-row"><label>Banco</label><input type="text" id="cfg_banco"></div>
+      <div class="form-row"><label>Número de Cuenta</label><input type="text" id="cfg_cuenta"></div>
+      <div class="form-row"><label>Titular</label><input type="text" id="cfg_titular"></div>
+      <div class="form-row"><label>Tipo de Cuenta</label><input type="text" id="cfg_tipo"></div>
+      <button class="ok" onclick="guardarBanco()">💾 Guardar Cambios</button>
+    </div>
+  </div>
+
+  <!-- CONFIGURACIÓN JUEGO -->
+  <div id="game" class="tab-content">
+    <div class="card">
+      <h2>🎮 Reglas del Juego</h2>
+      <div class="form-row"><label>Comisión de la Casa (ej: 0.05 = 5%)</label><input type="number" step="0.01" id="cfg_comision"></div>
+      <div class="form-row"><label>Apuesta Mínima (RD$)</label><input type="number" id="cfg_min"></div>
+      <div class="form-row"><label>Apuesta Máxima (RD$)</label><input type="number" id="cfg_max"></div>
+      <div class="form-row"><label>Máximo Jugadores por Sala</label><input type="number" id="cfg_max_jug" placeholder="Ej: 4"></div>
+      <div class="form-row"><label>Mensaje de Bienvenida</label><input type="text" id="cfg_mensaje" placeholder="Ej: ¡Bienvenido a Dominó RD!"></div>
+      <button class="ok" onclick="guardarJuego()">💾 Guardar Cambios</button>
+    </div>
+  </div>
+
+  <!-- CONTROLES MANUALES -->
+  <div id="manual" class="tab-content">
+    <div class="card">
+      <h2>⚙️ Controles Manuales del Sistema</h2>
+      <h3 style="color:#FFD700; margin:20px 0 12px; font-size:16px;">🔧 Estado del Sistema</h3>
+      <div class="form-row">
+        <label><label class="toggle"><input type="checkbox" id="manual-mantenimiento" onchange="toggleConfig('mantenimiento')"><span class="slider"></span></label> Modo Mantenimiento</label>
+        <small>Los usuarios no podrán jugar.</small>
+      </div>
+      <div class="form-row">
+        <label><label class="toggle"><input type="checkbox" id="manual-registros" onchange="toggleConfig('registros_activos')"><span class="slider"></span></label> Permitir Nuevos Registros</label>
+      </div>
+      <div class="form-row">
+        <label><label class="toggle"><input type="checkbox" id="manual-depositos" onchange="toggleConfig('depositos_activos')"><span class="slider"></span></label> Aceptar Depósitos</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="exit-btn">
+    <button class="no" onclick="salir()" style="padding: 14px 40px; font-size: 16px;">🚪 Cerrar Sesión</button>
+  </div>
+</div>
+
+<!-- Modal Detalle Usuario -->
+<div id="modal-detalle" class="modal" onclick="cerrarModalDetalle()">
+  <div class="modal-content modal-content-wide" onclick="event.stopPropagation()">
+    <h2 id="detalle-titulo" style="color:#FFD700; margin-top:0; text-align:center; font-size:24px;">👤 Detalle de Usuario</h2>
+    <div id="detalle-info" style="text-align:center; margin-bottom:24px; color:#aaa; font-size:14px; line-height:1.8; padding:16px; background:rgba(255,255,255,0.05); border-radius:12px;"></div>
+    
+    <h3 style="color:#5dade2; border-bottom:2px solid #3a4a7a; padding-bottom:8px; margin:20px 0 12px;">🎮 Historial de Partidas</h3>
+    <div style="max-height:280px; overflow-y:auto; margin-bottom:24px; background:#0f1626; border-radius:12px; padding:12px; border:1px solid #3a4a7a;">
+      <table><thead><tr><th>Fecha y Hora</th><th>Resultado</th><th>Monto</th><th>Sala</th></tr></thead><tbody id="detalle-partidas"></tbody></table>
+    </div>
+
+    <h3 style="color:#ec7063; border-bottom:2px solid #3a4a7a; padding-bottom:8px; margin:20px 0 12px;">💰 Historial de Transacciones</h3>
+    <div style="max-height:280px; overflow-y:auto; background:#0f1626; border-radius:12px; padding:12px; border:1px solid #3a4a7a;">
+      <table><thead><tr><th>Fecha y Hora</th><th>Tipo</th><th>Monto</th><th>Estado</th></tr></thead><tbody id="detalle-trans"></tbody></table>
+    </div>
+    <button class="close-modal" onclick="cerrarModalDetalle()">Cerrar Ventana</button>
+  </div>
+</div>
+
+<script>
+let T = localStorage.getItem('adm_tok') || '';
+const H = () => ({ 'x-admin-token': T, 'Content-Type': 'application/json' });
+let todasTrans = [];
+let todosUsers = [];
+
+async function entrar() {
+  const r = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: document.getElementById('pw').value }) });
+  const d = await r.json();
+  if (d.token) { T = d.token; localStorage.setItem('adm_tok', T); mostrar(); }
+  else alert('❌ Contraseña incorrecta');
+}
+
+function salir() { T = ''; localStorage.removeItem('adm_tok'); location.reload(); }
+
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'bank' || id === 'game' || id === 'manual') cargarConfig();
+  if (id === 'dashboard') actualizarDashboard();
+  if (id === 'hist-trans') cargarHistorialTrans();
+}
+
+async function mostrar() {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  await cargar();
+  actualizarDashboard();
+}
+
+async function cargar() {
+  try {
+    todasTrans = await (await fetch('/api/admin/pendientes', { headers: H() })).json();
+    renderTrans(todasTrans);
+    todosUsers = await (await fetch('/api/admin/usuarios', { headers: H() })).json();
+    renderUsersCards(todosUsers);
+  } catch (e) { alert('❌ Error al cargar datos. Verifica el backend.'); }
+}
+
+function renderTrans(lista) {
+  document.getElementById('pend').innerHTML = lista.map(t => `
+    <tr>
+      <td>${t.id}</td>
+      <td>${t.nombre}<br><small style="color:#aaa">${t.email}</small></td>
+      <td><span class="tag ${t.tipo}">${t.tipo === 'DEPOSITO' ? '💵 Depósito' : '📤 Retiro'}</span></td>
+      <td style="color:#FFD700;font-weight:bold">RD$ ${t.monto.toFixed(2)}</td>
+      <td>${t.tipo === 'RETIRO' ? (t.datos_retiro || 'Sin datos') : (t.referencia || '-')}</td>
+      <td>${t.comprobante_url ? '<img src="' + t.comprobante_url + '" style="max-width:60px;border-radius:6px;cursor:pointer" onclick="alert(\'Comprobante: ' + t.comprobante_url + '\')">' : '-'}</td>
+      <td>
+        <button class="ok" onclick="act(${t.id},'aprobar')">✅</button>
+        <button class="no" onclick="act(${t.id},'rechazar')">❌</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan=7 style="text-align:center;color:#aaa;padding:30px">✅ Sin transacciones pendientes</td></tr>';
+}
+
+function renderUsersCards(lista) {
+  document.getElementById('users-list').innerHTML = lista.map(x => {
+    const inicial = x.nombre.charAt(0).toUpperCase();
+    const estadoClass = x.estado === 'BLOQUEADO' ? 'BLOQUEADO' : 'ACTIVO';
+    const btnBloqueoText = x.estado === 'BLOQUEADO' ? '🔓 Desbloquear' : '🔒 Bloquear';
+    const btnBloqueoClass = x.estado === 'BLOQUEADO' ? 'ok' : 'no';
+    
+    return `
+    <div class="user-card" style="${x.estado === 'BLOQUEADO' ? 'opacity: 0.7; border-color: #e74c3c;' : ''}">
+      <div class="user-avatar">${inicial}</div>
+      <div class="user-info">
+        <div class="user-name">${x.nombre} <span class="tag ${estadoClass}" style="font-size:10px; vertical-align:middle;">${x.estado}</span></div>
+        <div class="user-email">📧 ${x.email}</div>
+        <div class="user-details">
+          <div class="user-detail">📱 ${x.telefono || 'No registrado'}</div>
+          <div class="user-detail">🎮 <strong>${x.partidas_jugadas || 0}</strong> partidas</div>
+        </div>
+      </div>
+      <div class="user-balance">RD$ ${x.saldo.toFixed(2)}</div>
+      <div class="user-actions">
+        <button class="edit" onclick="editSaldo(${x.id}, ${x.saldo})">💰 Saldo</button>
+        <button class="warn" onclick="verDetalle(${x.id})">📋 Historial</button>
+        <button class="${btnBloqueoClass}" onclick="toggleBloqueo(${x.id})">${btnBloqueoText}</button>
+        <button class="no" onclick="eliminar(${x.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;color:#aaa;padding:40px;font-size:16px">No hay usuarios registrados</div>';
+}
+
+async function cargarHistorialTrans() {
+  try {
+    const inicio = document.getElementById('fecha-inicio').value;
+    const fin = document.getElementById('fecha-fin').value;
+    let url = '/api/admin/transacciones/historial';
+    const params = new URLSearchParams();
+    if (inicio) params.append('inicio', inicio);
+    if (fin) params.append('fin', fin);
+    if (params.toString()) url += '?' + params.toString();
+
+    const trans = await (await fetch(url, { headers: H() })).json();
+    document.getElementById('hist-trans-body').innerHTML = trans.map(t => {
+      const fecha = new Date(t.creado_en).toLocaleString('es-DO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      return `<tr>
+        <td>${t.id}</td>
+        <td>${fecha}</td>
+        <td>${t.nombre}</td>
+        <td><span class="tag ${t.tipo}">${t.tipo === 'DEPOSITO' ? 'Depósito' : 'Retiro'}</span></td>
+        <td style="color:#FFD700;font-weight:bold">RD$ ${t.monto.toFixed(2)}</td>
+        <td><span class="tag ${t.estado}">${t.estado}</span></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan=6 style="text-align:center;color:#aaa;padding:30px">Sin registros en este rango</td></tr>';
+  } catch (e) { console.error(e); }
+}
+
+function limpiarFechas() {
+  document.getElementById('fecha-inicio').value = '';
+  document.getElementById('fecha-fin').value = '';
+  cargarHistorialTrans();
+}
+
+function filtrarTrans() {
+  const tipo = document.getElementById('filtro-tipo').value;
+  renderTrans(tipo ? todasTrans.filter(t => t.tipo === tipo) : todasTrans);
+}
+
+function filtrarUsers() {
+  const q = document.getElementById('buscar-user').value.toLowerCase();
+  renderUsersCards(todosUsers.filter(u => u.nombre.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+}
+
+function actualizarDashboard() {
+  document.getElementById('stat-usuarios').textContent = todosUsers.length;
+  document.getElementById('stat-pendientes').textContent = todasTrans.length;
+  document.getElementById('stat-saldo-total').textContent = 'RD$ ' + todosUsers.reduce((s, u) => s + u.saldo, 0).toFixed(2);
+  document.getElementById('stat-depositos').textContent = 'RD$ ' + todasTrans.filter(t => t.tipo === 'DEPOSITO').reduce((s, t) => s + t.monto, 0).toFixed(2);
+  document.getElementById('stat-retiros').textContent = 'RD$ ' + todasTrans.filter(t => t.tipo === 'RETIRO').reduce((s, t) => s + t.monto, 0).toFixed(2);
+}
+
+async function cargarConfig() {
+  try {
+    const c = await (await fetch('/api/admin/config', { headers: H() })).json();
+    if (c.banco) document.getElementById('cfg_banco').value = c.banco;
+    if (c.cuenta) document.getElementById('cfg_cuenta').value = c.cuenta;
+    if (c.titular) document.getElementById('cfg_titular').value = c.titular;
+    if (c.tipo) document.getElementById('cfg_tipo').value = c.tipo;
+    if (c.comision) document.getElementById('cfg_comision').value = c.comision;
+    if (c.min_apuesta) document.getElementById('cfg_min').value = c.min_apuesta;
+    if (c.max_apuesta) document.getElementById('cfg_max').value = c.max_apuesta;
+    if (c.max_jugadores_sala) document.getElementById('cfg_max_jug').value = c.max_jugadores_sala;
+    if (c.mensaje_bienvenida) document.getElementById('cfg_mensaje').value = c.mensaje_bienvenida;
+    if (c.mantenimiento) document.getElementById('manual-mantenimiento').checked = c.mantenimiento === '1';
+    if (c.registros_activos) document.getElementById('manual-registros').checked = c.registros_activos !== '0';
+    if (c.depositos_activos) document.getElementById('manual-depositos').checked = c.depositos_activos !== '0';
+  } catch (e) { console.error(e); }
+}
+
+async function guardarBanco() {
+  const campos = [['banco', 'cfg_banco'], ['cuenta', 'cfg_cuenta'], ['titular', 'cfg_titular'], ['tipo', 'cfg_tipo']];
+  for (const [clave, id] of campos) await fetch('/api/admin/config', { method: 'POST', headers: H(), body: JSON.stringify({ clave, valor: document.getElementById(id).value }) });
+  alert('✅ Cuenta bancaria actualizada');
+}
+
+async function guardarJuego() {
+  const campos = [['comision', 'cfg_comision'], ['min_apuesta', 'cfg_min'], ['max_apuesta', 'cfg_max'], ['max_jugadores_sala', 'cfg_max_jug'], ['mensaje_bienvenida', 'cfg_mensaje']];
+  for (const [clave, id] of campos) await fetch('/api/admin/config', { method: 'POST', headers: H(), body: JSON.stringify({ clave, valor: document.getElementById(id).value }) });
+  alert('✅ Configuración del juego actualizada');
+}
+
+async function toggleConfig(clave) {
+  const activo = document.getElementById('manual-' + (clave === 'mantenimiento' ? 'mantenimiento' : clave === 'registros_activos' ? 'registros' : 'depositos')).checked;
+  await fetch('/api/admin/config', { method: 'POST', headers: H(), body: JSON.stringify({ clave, valor: activo ? '1' : '0' }) });
+  alert('✅ Configuración actualizada');
+}
+
+async function editSaldo(id, saldoActual) {
+  const nuevo = prompt('Nuevo saldo para usuario #' + id + '\nSaldo actual: RD$ ' + saldoActual.toFixed(2), saldoActual);
+  if (nuevo === null) return;
+  const n = parseFloat(nuevo);
+  if (isNaN(n) || n < 0) { alert('❌ Monto inválido'); return; }
+  await fetch('/api/admin/usuario/' + id + '/saldo', { method: 'POST', headers: H(), body: JSON.stringify({ saldo: n }) });
+  alert('✅ Saldo actualizado'); cargar();
+}
+
+async function toggleBloqueo(id) {
+  if (!confirm('¿Cambiar estado de bloqueo de este usuario?')) return;
+  try {
+    const res = await fetch(`/api/admin/usuario/${id}/bloquear`, { method: 'POST', headers: H() });
+    const data = await res.json();
+    alert(`✅ Usuario ahora está: ${data.estado}`);
+    cargar();
+  } catch (e) { alert('❌ Error al cambiar estado'); }
+}
+
+async function verDetalle(id) {
+  try {
+    const res = await fetch(`/api/admin/usuario/${id}/detalles`, { headers: H() });
+    if (!res.ok) throw new Error('Error');
+    const data = await res.json();
+    const u = data.usuario;
+    document.getElementById('detalle-titulo').textContent = `👤 ${u.nombre} (ID: ${u.id}) - ${u.estado}`;
+    document.getElementById('detalle-info').innerHTML = `<strong>Email:</strong> ${u.email} <br><strong style="color:#2ecc71; font-size:18px;">Saldo: RD$ ${u.saldo.toFixed(2)}</strong> <br><strong>Partidas Jugadas:</strong> ${u.partidas_jugadas || 0}`;
+
+    const tbodyPartidas = document.getElementById('detalle-partidas');
+    if (data.partidas && data.partidas.length > 0) {
+      tbodyPartidas.innerHTML = data.partidas.map(p => {
+        const fecha = new Date(p.fecha).toLocaleString('es-DO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        const color = p.resultado === 'VICTORIA' ? '#2ecc71' : '#e74c3c';
+        return `<tr><td>${fecha}</td><td style="color:${color}; font-weight:700;">${p.resultado}</td><td style="color:${color}; font-weight:700;">${p.monto}</td><td>${p.sala}</td></tr>`;
+      }).join('');
+    } else { tbodyPartidas.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#aaa; padding:20px;">Sin partidas</td></tr>'; }
+
+    const tbodyTrans = document.getElementById('detalle-trans');
+    if (data.transacciones && data.transacciones.length > 0) {
+      tbodyTrans.innerHTML = data.transacciones.map(t => {
+        const fecha = new Date(t.creado_en).toLocaleString('es-DO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        return `<tr><td>${fecha}</td><td><span class="tag ${t.tipo}">${t.tipo === 'DEPOSITO' ? 'Depósito' : 'Retiro'}</span></td><td style="color:#FFD700">RD$ ${t.monto.toFixed(2)}</td><td><span class="tag ${t.estado}">${t.estado}</span></td></tr>`;
+      }).join('');
+    } else { tbodyTrans.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#aaa; padding:20px;">Sin transacciones</td></tr>'; }
+
+    document.getElementById('modal-detalle').classList.add('active');
+  } catch (e) { alert('❌ Error al cargar detalles'); }
+}
+
+function cerrarModalDetalle() { document.getElementById('modal-detalle').classList.remove('active'); }
+
+async function eliminar(id) {
+  const u = todosUsers.find(x => x.id === id);
+  if (!confirm(`⚠️ ¿Eliminar a ${u.nombre}?\n\nEsta acción NO se puede deshacer.`)) return;
+  await fetch('/api/admin/usuario/' + id + '/eliminar', { method: 'POST', headers: H() });
+  alert('✅ Usuario eliminado'); cargar();
+}
+
+async function act(id, op) {
+  if (!confirm(op === 'aprobar' ? '✅ ¿Aprobar?' : '❌ ¿Rechazar?')) return;
+  await fetch('/api/admin/' + op + '/' + id, { method: 'POST', headers: H(), body: JSON.stringify({ notas: 'ok' }) });
+  alert('✅ Transacción ' + (op === 'aprobar' ? 'aprobada' : 'rechazada')); cargar();
+}
+
+if (T) mostrar();
+</script>
+</body>
+</html>

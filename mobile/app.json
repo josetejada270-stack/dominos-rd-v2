@@ -1,0 +1,1 @@
+{ "expo": { "name": "Dominó RD", "slug": "domino-rd", "version": "1.0.0", "orientation": "portrait", "userInterfaceStyle": "dark", "splash": { "backgroundColor": "#0f1626" }, "web": { "bundler": "metro" }, "android": { "package": "com.tuempresa.dominord" }, "ios": { "bundleIdentifier": "com.tuempresa.dominord" } } }
