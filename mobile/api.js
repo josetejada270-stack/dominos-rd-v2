@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-// Dirección actualizada para que tus amigos en tu misma red Wi-Fi puedan conectarse
-export const BACKEND_URL = 'http://192.168.1.21:3001';
+export const BACKEND_URL = 'https://dominos-rd-v2.onrender.com';
 export const api = axios.create({ baseURL: BACKEND_URL + '/api' });
 
 export async function setToken(t) {
