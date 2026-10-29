@@ -339,7 +339,22 @@ io.on('connection', (socket) => {
     if (res.error) return socket.emit('juego:error', { msg: res.error });
     broadcastEstado(sala);
   });
+  // 💬 SISTEMA DE CHAT EN SALA
+  socket.on('chat:enviar', ({ salaId, texto }) => {
+    const sala = salas.get(salaId);
+    if (!sala) return;
+    
+    const jugador = sala.jugadores.find(j => j.socketId === socket.id || j.userId === socket.data.userId);
+    if (!jugador) return;
 
+    io.to(salaId).emit('chat:msg', {
+      nombre: jugador.nombre,
+      texto: texto.trim(),
+      timestamp: Date.now()
+    });
+  });
+
+  socket.on('disconnect', async () => {
   socket.on('disconnect', async () => {
     for (const sala of salas.values()) {
       const idx = sala.jugadores.findIndex(j => j.socketId === socket.id);
