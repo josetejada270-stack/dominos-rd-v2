@@ -145,7 +145,6 @@ app.post('/api/admin/login', (req, res) => {
 app.get('/api/admin/pendientes', adminAuth, async (req, res) => { try { res.json(await q.getTransPendientes()); } catch(e){res.status(500).json({error:'Error'});} });
 app.get('/api/admin/usuarios', adminAuth, async (req, res) => { try { res.json(await q.getUsuarios()); } catch(e){res.status(500).json({error:'Error'});} });
 
-// NUEVO: Historial de transacciones con filtro de fechas
 app.get('/api/admin/transacciones/historial', adminAuth, async (req, res) => {
   try {
     const { inicio, fin } = req.query;
@@ -154,7 +153,6 @@ app.get('/api/admin/transacciones/historial', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error al obtener historial' }); }
 });
 
-// NUEVO: Bloquear/Desbloquear usuario
 app.post('/api/admin/usuario/:id/bloquear', adminAuth, async (req, res) => {
   try {
     const nuevoEstado = await q.toggleUsuarioEstado(req.params.id);
@@ -216,7 +214,6 @@ app.post('/api/admin/usuario/:id/eliminar', adminAuth, async (req, res) => {
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
-// --------------------------------
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' }, transports: ['websocket', 'polling'], pingTimeout: 60000, pingInterval: 25000 });
@@ -339,6 +336,7 @@ io.on('connection', (socket) => {
     if (res.error) return socket.emit('juego:error', { msg: res.error });
     broadcastEstado(sala);
   });
+
   // 💬 SISTEMA DE CHAT EN SALA
   socket.on('chat:enviar', ({ salaId, texto }) => {
     const sala = salas.get(salaId);
@@ -354,7 +352,6 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('disconnect', async () => {
   socket.on('disconnect', async () => {
     for (const sala of salas.values()) {
       const idx = sala.jugadores.findIndex(j => j.socketId === socket.id);
